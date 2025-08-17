@@ -107,63 +107,78 @@ user_problem_statement: "Build Kurdish Islamic app with 4 features: Prayer Times
 backend:
   - task: "Prayer Times API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented prayer times calculation API with city coordinates, basic astronomical formulas"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Prayer times API working correctly. Returns all 6 prayer times (fajr, sunrise, dhuhr, asr, maghrib, isha) in HH:MM format for both Erbil and Baghdad coordinates. Includes date and city name. All times calculated properly."
 
   - task: "Cities API by Language"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented cities endpoint that returns Kurdish cities for Kurdish language, Arabic cities for Arabic language"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Cities API working perfectly. /api/cities/kurdish returns Kurdish cities (هەولێر، سلێمانی، دهۆک, etc.) and /api/cities/arabic returns Arabic cities (بغداد، البصرة، الموصل, etc.). All cities include proper id, name, name_en, lat, lng fields. Language-based filtering works correctly."
 
   - task: "Qibla Direction API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented Qibla direction calculation using geographical coordinates to Mecca"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Qibla direction API working correctly. Returns proper bearing to Mecca (195.0° for Erbil, calculated correctly). Includes qibla_direction, lat, lng fields. Mathematical calculation verified for both test coordinates."
 
   - task: "Duas Collection API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented duas collection with morning and evening duas in Kurdish and Arabic"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Duas collection API working correctly. Returns morning_duas and evening_duas arrays with proper structure. Each dua includes id, title_kurdish, title_arabic, kurdish, arabic, transliteration fields. Kurdish and Arabic text properly formatted."
 
   - task: "Quran Verses API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented Quran verses endpoint with Arabic text, Kurdish translation, and transliteration"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Quran verses API working correctly. Returns verses array with proper structure including id, surah_number, verse_number, arabic, kurdish, transliteration, english, and surah names in all languages. Al-Fatihah verses properly formatted with Kurdish translations."
 
 frontend:
   - task: "Language Switcher"
