@@ -1,34 +1,257 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* Import fonts for Arabic and Kurdish text */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+/* Arabic and Kurdish text styling */
+.arabic-text {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-size: 1.2em;
+  line-height: 2;
+  text-align: right;
+  direction: rtl;
 }
 
-.App-link {
-    color: #61dafb;
+.kurdish-text {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  text-align: right;
+  direction: rtl;
+  line-height: 1.8;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* Loading spinner */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #059669;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Prayer times cards */
+.prayer-card {
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.prayer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-left-color: #059669;
+}
+
+/* Qibla compass styling */
+.qibla-compass {
+  background: radial-gradient(circle, #f0fdf4 0%, #dcfce7 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qibla-compass::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  height: 80%;
+  border: 2px solid #22c55e;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.3;
+}
+
+.qibla-compass::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 60%;
+  border: 1px solid #16a34a;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.2;
+}
+
+/* Dua cards */
+.dua-card {
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.dua-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Quran cards */
+.quran-card {
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #fefce8 100%);
+  border: 1px solid #fbbf24;
+}
+
+.quran-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(251, 191, 36, 0.1);
+}
+
+/* Navigation tabs */
+nav button {
+  transition: all 0.3s ease;
+}
+
+nav button:hover {
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .prayer-card {
+    margin-bottom: 1rem;
+  }
+  
+  .qibla-compass {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .arabic-text {
+    font-size: 1.1em;
+  }
+  
+  nav {
+    overflow-x: auto;
+  }
+  
+  nav button {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .qibla-compass {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .arabic-text {
+    font-size: 1em;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  .dua-card, .quran-card {
+    padding: 1rem;
+  }
+}
+
+/* RTL support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] select {
+  text-align: right;
+}
+
+/* Additional Islamic styling */
+.islamic-pattern {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+}
+
+/* Enhanced button styles */
+button:focus {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+}
+
+select:focus {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for language switching */
+.language-transition {
+  transition: all 0.5s ease;
+}
+
+/* Prayer time highlighting for current prayer */
+.current-prayer {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-left-color: #059669;
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(34, 197, 94, 0.2);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+  
+  .prayer-card:hover,
+  .dua-card:hover,
+  .quran-card:hover {
+    transform: none;
+  }
+  
+  .current-prayer {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .prayer-card,
+  .dua-card,
+  .quran-card {
+    border: 2px solid #000;
+  }
+  
+  .qibla-compass {
+    border: 3px solid #000;
+  }
 }
