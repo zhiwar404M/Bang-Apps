@@ -119,6 +119,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ TESTED: Prayer times API working correctly. Returns all 6 prayer times (fajr, sunrise, dhuhr, asr, maghrib, isha) in HH:MM format for both Erbil and Baghdad coordinates. Includes date and city name. All times calculated properly."
+        - working: true
+          agent: "testing"
+          comment: "✅ ENHANCED PRAYER TIMES FULLY TESTED: Comprehensive testing completed for enhanced prayer times API with all requested improvements. ✅ 12-hour format with Kurdish AM/PM indicators (ب.ن/د.ن) working perfectly ✅ Current prayer detection implemented and returning correct values ✅ Solar calculations accurate for all 4 test coordinates (Erbil, Baghdad, Sulaymaniyah, Duhok) ✅ All 6 prayer times returned with reasonable values (Fajr before sunrise, Dhuhr around noon, etc.) ✅ Error handling working with invalid coordinates ✅ All prayer times show proper Kurdish AM/PM format. Prayer times are realistic and properly calculated using enhanced solar calculations."
 
   - task: "Cities API by Language"
     implemented: true
