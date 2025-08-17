@@ -1,5 +1,5 @@
 /* Import fonts for Arabic and Kurdish text */
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
 
 /* Global styles */
 * {
@@ -9,7 +9,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -33,6 +33,14 @@ body {
   line-height: 1.8;
 }
 
+/* Arabic time display styling */
+.arabic-time {
+  font-family: 'Roboto', 'Amiri', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 /* Loading spinner */
 .spinner {
   width: 40px;
@@ -48,25 +56,91 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Prayer times cards */
+/* Soft pulse animation for current prayer */
+@keyframes pulse-soft {
+  0%, 100% {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
+}
+
+/* Prayer times cards enhanced styling */
 .prayer-card {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-left: 4px solid transparent;
 }
 
 .prayer-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  border-left-color: #059669;
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
-/* Qibla compass styling */
+/* Enhanced prayer time cards */
+.prayer-time-card {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.prayer-time-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b, #10b981, #3b82f6);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.prayer-time-card:hover::before {
+  opacity: 1;
+}
+
+/* Current prayer highlight */
+.current-prayer-card {
+  background: linear-gradient(145deg, #ecfdf5, #d1fae5);
+  border-color: #10b981;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+}
+
+.current-prayer-card::before {
+  opacity: 1;
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+/* Time display enhancements */
+.time-display {
+  background: linear-gradient(145deg, #ffffff, #f1f5f9);
+  border: 2px solid #e2e8f0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.time-display:hover {
+  border-color: #10b981;
+  box-shadow: inset 0 2px 4px rgba(16, 185, 129, 0.1);
+}
+
+/* Qibla compass enhanced styling */
 .qibla-compass {
-  background: radial-gradient(circle, #f0fdf4 0%, #dcfce7 100%);
+  background: conic-gradient(from 0deg, #f0fdf4, #dcfce7, #bbf7d0, #86efac, #dcfce7, #f0fdf4);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
 }
 
 .qibla-compass::before {
@@ -74,12 +148,13 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 80%;
-  height: 80%;
-  border: 2px solid #22c55e;
+  width: 85%;
+  height: 85%;
+  border: 3px solid #10b981;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0.3;
+  opacity: 0.4;
+  box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.2);
 }
 
 .qibla-compass::after {
@@ -87,59 +162,134 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 60%;
-  height: 60%;
-  border: 1px solid #16a34a;
+  width: 65%;
+  height: 65%;
+  border: 2px solid #059669;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0.2;
+  opacity: 0.3;
 }
 
-/* Dua cards */
+/* Qibla needle enhancement */
+.qibla-needle {
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Dua cards enhanced */
 .dua-card {
-  transition: all 0.3s ease;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.dua-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, #10b981, #059669);
+  transition: width 0.3s ease;
 }
 
 .dua-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
-/* Quran cards */
+.dua-card:hover::before {
+  width: 8px;
+}
+
+/* Quran cards enhanced */
 .quran-card {
-  transition: all 0.3s ease;
-  background: linear-gradient(135deg, #ffffff 0%, #fefce8 100%);
-  border: 1px solid #fbbf24;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(145deg, #ffffff 0%, #fefce8 100%);
+  border: 2px solid #fbbf24;
+  position: relative;
+  overflow: hidden;
+}
+
+.quran-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  transition: height 0.3s ease;
 }
 
 .quran-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(251, 191, 36, 0.1);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(251, 191, 36, 0.15);
 }
 
-/* Navigation tabs */
+.quran-card:hover::before {
+  height: 8px;
+}
+
+/* Navigation tabs enhanced */
 nav button {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+nav button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+nav button:hover::before {
+  left: 100%;
 }
 
 nav button:hover {
-  background-color: rgba(34, 197, 94, 0.1);
+  background-color: rgba(34, 197, 94, 0.05);
+  transform: translateY(-2px);
 }
 
-/* Responsive design */
+/* Islamic pattern backgrounds */
+.islamic-pattern-1 {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+}
+
+.islamic-pattern-2 {
+  background-image: 
+    linear-gradient(45deg, rgba(34, 197, 94, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(34, 197, 94, 0.05) 25%, transparent 25%);
+  background-size: 20px 20px;
+}
+
+/* Responsive design enhanced */
 @media (max-width: 768px) {
   .container {
     padding: 0 1rem;
   }
   
-  .prayer-card {
+  .prayer-card,
+  .dua-card,
+  .quran-card {
     margin-bottom: 1rem;
   }
   
   .qibla-compass {
-    width: 200px;
-    height: 200px;
+    width: 220px;
+    height: 220px;
   }
   
   .arabic-text {
@@ -152,6 +302,11 @@ nav button:hover {
   
   nav button {
     min-width: 120px;
+    font-size: 0.9rem;
+  }
+  
+  .arabic-time {
+    font-size: 1.5rem;
   }
 }
 
@@ -172,9 +327,13 @@ nav button:hover {
   .dua-card, .quran-card {
     padding: 1rem;
   }
+  
+  .arabic-time {
+    font-size: 1.25rem;
+  }
 }
 
-/* RTL support */
+/* RTL support enhanced */
 [dir="rtl"] {
   text-align: right;
 }
@@ -187,48 +346,47 @@ nav button:hover {
   text-align: right;
 }
 
-/* Additional Islamic styling */
-.islamic-pattern {
-  background-image: 
-    radial-gradient(circle at 25% 25%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+[dir="rtl"] .dua-card::before,
+[dir="rtl"] .prayer-card {
+  border-left: none;
+  border-right: 5px solid;
 }
 
-/* Enhanced button styles */
-button:focus {
-  outline: 2px solid #059669;
-  outline-offset: 2px;
-}
-
+/* Enhanced button and form styles */
+button:focus,
 select:focus {
-  outline: 2px solid #059669;
+  outline: 3px solid #10b981;
   outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
-/* Smooth transitions for language switching */
-.language-transition {
-  transition: all 0.5s ease;
+/* Gradient text effects */
+.gradient-text {
+  background: linear-gradient(145deg, #059669, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Prayer time highlighting for current prayer */
-.current-prayer {
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-  border-left-color: #059669;
-  animation: pulse-green 2s infinite;
+/* Enhanced shadows and lighting */
+.enhanced-shadow {
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.07),
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-@keyframes pulse-green {
-  0%, 100% {
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.1);
-  }
-  50% {
-    box-shadow: 0 4px 25px rgba(34, 197, 94, 0.2);
-  }
+.enhanced-shadow:hover {
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.15),
+    0 3px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
-  .spinner {
+  .spinner,
+  .animate-pulse-soft {
     animation: none;
   }
   
@@ -238,8 +396,8 @@ select:focus {
     transform: none;
   }
   
-  .current-prayer {
-    animation: none;
+  nav button:hover {
+    transform: none;
   }
 }
 
@@ -248,10 +406,14 @@ select:focus {
   .prayer-card,
   .dua-card,
   .quran-card {
-    border: 2px solid #000;
+    border: 3px solid #000;
   }
   
   .qibla-compass {
+    border: 4px solid #000;
+  }
+  
+  .time-display {
     border: 3px solid #000;
   }
 }
