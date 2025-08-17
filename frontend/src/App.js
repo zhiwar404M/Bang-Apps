@@ -9,7 +9,9 @@ const App = () => {
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [qiblaDirection, setQiblaDirection] = useState(null);
   const [duas, setDuas] = useState(null);
-  const [quranVerses, setQuranVerses] = useState(null);
+  const [quranSurahs, setQuranSurahs] = useState([]);
+  const [selectedSurah, setSelectedSurah] = useState(null);
+  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
@@ -21,7 +23,9 @@ const App = () => {
       qibla: 'قیبلە',
       duas: 'دوعاکان',
       quran: 'قورئان',
+      settings: 'ڕێکخستنەکان',
       selectCity: 'شارەکە هەڵبژێرە',
+      selectSurah: 'سورەتەکە هەڵبژێرە',
       fajr: 'بەیانی',
       sunrise: 'خۆرهەڵات',
       dhuhr: 'نیوەڕۆ',
@@ -31,7 +35,20 @@ const App = () => {
       qiblaDirection: 'ئاراستەی قیبلە',
       morningDuas: 'دوعای بەیانی',
       eveningDuas: 'دوعای ئێوارە',
-      loading: 'چاوەڕێ بکە...'
+      loading: 'چاوەڕێ بکە...',
+      generalSettings: 'ڕێکخستنی گشتی',
+      displaySettings: 'ڕێکخستنی پیشاندان',
+      notificationSettings: 'ڕێکخستنی ئاگادارکردنەوە',
+      theme: 'ڕووکار',
+      fontSize: 'قەبارەی فۆنت',
+      arabicFont: 'فۆنتی عەرەبی',
+      prayerNotifications: 'ئاگادارکردنەوەی نوێژ',
+      prayerSound: 'دەنگی نوێژ',
+      hijriCalendar: 'ڕۆژژمێری کۆچی',
+      save: 'پاشەکەوتکردن',
+      cancel: 'هەڵوەشاندنەوە',
+      verses: 'ئایەت',
+      surahInfo: 'زانیاری سورەت'
     },
     arabic: {
       title: 'التطبيق الإسلامي العربي',
@@ -39,7 +56,9 @@ const App = () => {
       qibla: 'القبلة',
       duas: 'الأدعية',
       quran: 'القرآن',
+      settings: 'الإعدادات',
       selectCity: 'اختر المدينة',
+      selectSurah: 'اختر السورة',
       fajr: 'الفجر',
       sunrise: 'الشروق',
       dhuhr: 'الظهر',
@@ -49,7 +68,20 @@ const App = () => {
       qiblaDirection: 'اتجاه القبلة',
       morningDuas: 'أدعية الصباح',
       eveningDuas: 'أدعية المساء',
-      loading: 'جاري التحميل...'
+      loading: 'جاري التحميل...',
+      generalSettings: 'الإعدادات العامة',
+      displaySettings: 'إعدادات العرض',
+      notificationSettings: 'إعدادات التنبيهات',
+      theme: 'المظهر',
+      fontSize: 'حجم الخط',
+      arabicFont: 'الخط العربي',
+      prayerNotifications: 'تنبيهات الصلاة',
+      prayerSound: 'صوت الصلاة',
+      hijriCalendar: 'التقويم الهجري',
+      save: 'حفظ',
+      cancel: 'إلغاء',
+      verses: 'آيات',
+      surahInfo: 'معلومات السورة'
     }
   };
 
@@ -58,7 +90,8 @@ const App = () => {
   useEffect(() => {
     fetchCities();
     fetchDuas();
-    fetchQuranVerses();
+    fetchQuranSurahs();
+    fetchSettings();
   }, [language]);
 
   const fetchCities = async () => {
@@ -122,6 +155,54 @@ const App = () => {
     }
   };
 
+  const fetchQuranSurahs = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/quran/surahs`);
+      const data = await response.json();
+      setQuranSurahs(data.surahs || []);
+    } catch (error) {
+      console.error('Error fetching quran surahs:', error);
+    }
+  };
+
+  const fetchSurah = async (surahNumber) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${backendUrl}/api/quran/surah/${surahNumber}`);
+      const data = await response.json();
+      setSelectedSurah(data);
+    } catch (error) {
+      console.error('Error fetching surah:', error);
+    }
+    setLoading(false);
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/settings`);
+      const data = await response.json();
+      setSettings(data);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
+  const updateSettings = async (newSettings) => {
+    try {
+      const response = await fetch(`${backendUrl}/api/settings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newSettings),
+      });
+      const data = await response.json();
+      setSettings(data);
+    } catch (error) {
+      console.error('Error updating settings:', error);
+    }
+  };
+
   const handleCityChange = (event) => {
     const cityId = event.target.value;
     const city = cities.find(c => c.id === cityId);
@@ -131,6 +212,15 @@ const App = () => {
       fetchPrayerTimes(city);
     } else if (activeTab === 'qibla') {
       fetchQiblaDirection(city);
+    }
+  };
+
+  const handleSurahChange = (event) => {
+    const surahNumber = parseInt(event.target.value);
+    if (surahNumber) {
+      fetchSurah(surahNumber);
+    } else {
+      setSelectedSurah(null);
     }
   };
 
@@ -437,7 +527,7 @@ const App = () => {
   };
 
   const renderQuran = () => {
-    if (!quranVerses) {
+    if (!quranSurahs.length) {
       return (
         <div className="text-center py-8 text-gray-600">
           {currentLang.loading}
@@ -447,41 +537,226 @@ const App = () => {
 
     return (
       <div className="space-y-6">
-        <div className="text-center">
-          <h3 className="text-xl font-bold text-green-800 mb-2">{currentLang.quran}</h3>
-          <p className="text-gray-600">
-            {language === 'kurdish' ? 'فاتیحە' : 'سورة الفاتحة'}
-          </p>
+        {/* Surah Selector */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-amber-200">
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-amber-800 mb-2">{currentLang.quran}</h3>
+          </div>
+          
+          <div className="max-w-md mx-auto">
+            <select
+              onChange={handleSurahChange}
+              className="w-full bg-white text-amber-700 px-4 py-3 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-amber-300 border-2 border-amber-300"
+            >
+              <option value="">{currentLang.selectSurah}</option>
+              {quranSurahs.map((surah) => (
+                <option key={surah.number} value={surah.number}>
+                  {surah.number}. {language === 'kurdish' ? surah.name_kurdish : surah.name_arabic}
+                  {' '}({surah.verses_count} {currentLang.verses})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          {quranVerses.map((verse) => (
-            <div key={verse.id} className="quran-card bg-white rounded-lg shadow-md p-6 border-t-4 border-amber-500">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-sm bg-amber-100 text-amber-800 px-3 py-1 rounded-full">
-                  {language === 'kurdish' ? `ئایەت ${verse.verse_number}` : `آية ${verse.verse_number}`}
-                </span>
-              </div>
-              
-              <div className="space-y-4">
-                <p className="text-2xl text-right arabic-text leading-relaxed" dir="rtl">
-                  {verse.arabic}
+        {/* Selected Surah Display */}
+        {selectedSurah && (
+          <div className="space-y-6">
+            {/* Surah Info Header */}
+            <div className="bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl p-6 shadow-lg">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold mb-2">
+                  {language === 'kurdish' 
+                    ? selectedSurah.surah_info.name_kurdish 
+                    : selectedSurah.surah_info.name_arabic}
+                </h2>
+                <p className="text-amber-100 text-lg mb-2">
+                  {selectedSurah.surah_info.name_english}
                 </p>
-                
-                <p className="text-lg text-right kurdish-text" dir="rtl">
-                  {language === 'kurdish' ? verse.kurdish : verse.arabic}
-                </p>
-                
-                <p className="text-sm text-gray-600 italic">
-                  {verse.transliteration}
-                </p>
-                
-                <p className="text-sm text-gray-700 border-t pt-3">
-                  {verse.english}
-                </p>
+                <div className="flex justify-center items-center space-x-4 text-sm">
+                  <span className="bg-amber-600 px-3 py-1 rounded-full">
+                    {language === 'kurdish' ? 'ژمارە' : 'رقم'}: {selectedSurah.surah_info.number}
+                  </span>
+                  <span className="bg-amber-600 px-3 py-1 rounded-full">
+                    {selectedSurah.total_verses} {currentLang.verses}
+                  </span>
+                  <span className="bg-amber-600 px-3 py-1 rounded-full">
+                    {selectedSurah.surah_info.type}
+                  </span>
+                </div>
               </div>
             </div>
-          ))}
+
+            {/* Loading State */}
+            {loading && (
+              <div className="text-center py-8">
+                <div className="spinner mx-auto mb-4"></div>
+                <p className="text-gray-600">{currentLang.loading}</p>
+              </div>
+            )}
+
+            {/* Verses Display */}
+            {!loading && selectedSurah.verses && (
+              <div className="space-y-4">
+                {selectedSurah.verses.map((verse) => (
+                  <div key={verse.verse_number} className="quran-card bg-white rounded-lg shadow-md p-6 border-t-4 border-amber-500">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-sm bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-bold">
+                        {language === 'kurdish' ? `ئایەت ${verse.verse_number}` : `آية ${verse.verse_number}`}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <p className="text-2xl text-right arabic-text leading-relaxed" dir="rtl">
+                        {verse.arabic}
+                      </p>
+                      
+                      <p className="text-lg text-right kurdish-text" dir="rtl">
+                        {language === 'kurdish' ? verse.kurdish : verse.arabic}
+                      </p>
+                      
+                      <p className="text-sm text-gray-600 italic">
+                        {verse.transliteration}
+                      </p>
+                      
+                      <p className="text-sm text-gray-700 border-t pt-3">
+                        {verse.english}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderSettings = () => {
+    if (!settings) {
+      return (
+        <div className="text-center py-8 text-gray-600">
+          {currentLang.loading}
+        </div>
+      );
+    }
+
+    const handleSettingChange = (key, value) => {
+      const newSettings = { ...settings, [key]: value };
+      setSettings(newSettings);
+    };
+
+    const handleSaveSettings = () => {
+      updateSettings(settings);
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* General Settings */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-200">
+          <h3 className="text-xl font-bold text-blue-800 mb-4 flex items-center">
+            ⚙️ {currentLang.generalSettings}
+          </h3>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-gray-700 font-medium">{currentLang.theme}</label>
+              <select
+                value={settings.theme}
+                onChange={(e) => handleSettingChange('theme', e.target.value)}
+                className="bg-white border-2 border-blue-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              >
+                <option value="default">{language === 'kurdish' ? 'بنەڕەتی' : 'افتراضي'}</option>
+                <option value="dark">{language === 'kurdish' ? 'تاریک' : 'داكن'}</option>
+                <option value="light">{language === 'kurdish' ? 'ڕووناک' : 'فاتح'}</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="text-gray-700 font-medium">{currentLang.fontSize}</label>
+              <select
+                value={settings.font_size}
+                onChange={(e) => handleSettingChange('font_size', e.target.value)}
+                className="bg-white border-2 border-blue-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              >
+                <option value="small">{language === 'kurdish' ? 'بچووک' : 'صغير'}</option>
+                <option value="medium">{language === 'kurdish' ? 'ناوەند' : 'متوسط'}</option>
+                <option value="large">{language === 'kurdish' ? 'گەورە' : 'كبير'}</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="text-gray-700 font-medium">{currentLang.arabicFont}</label>
+              <select
+                value={settings.arabic_font}
+                onChange={(e) => handleSettingChange('arabic_font', e.target.value)}
+                className="bg-white border-2 border-blue-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              >
+                <option value="amiri">Amiri</option>
+                <option value="scheherazade">Scheherazade</option>
+                <option value="noto">Noto Sans Arabic</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Notification Settings */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-green-200">
+          <h3 className="text-xl font-bold text-green-800 mb-4 flex items-center">
+            🔔 {currentLang.notificationSettings}
+          </h3>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-gray-700 font-medium">{currentLang.prayerNotifications}</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.prayer_notifications}
+                  onChange={(e) => handleSettingChange('prayer_notifications', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="text-gray-700 font-medium">{currentLang.prayerSound}</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.prayer_sound}
+                  onChange={(e) => handleSettingChange('prayer_sound', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="text-gray-700 font-medium">{currentLang.hijriCalendar}</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.hijri_calendar}
+                  onChange={(e) => handleSettingChange('hijri_calendar', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="text-center">
+          <button
+            onClick={handleSaveSettings}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105"
+          >
+            💾 {currentLang.save}
+          </button>
         </div>
       </div>
     );
@@ -534,7 +809,8 @@ const App = () => {
               { id: 'prayer-times', label: currentLang.prayerTimes, icon: '🕐' },
               { id: 'qibla', label: currentLang.qibla, icon: '🧭' },
               { id: 'duas', label: currentLang.duas, icon: '🤲' },
-              { id: 'quran', label: currentLang.quran, icon: '📖' }
+              { id: 'quran', label: currentLang.quran, icon: '📖' },
+              { id: 'settings', label: currentLang.settings, icon: '⚙️' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -559,6 +835,7 @@ const App = () => {
         {activeTab === 'qibla' && renderQibla()}
         {activeTab === 'duas' && renderDuas()}
         {activeTab === 'quran' && renderQuran()}
+        {activeTab === 'settings' && renderSettings()}
       </main>
 
       {/* Footer */}

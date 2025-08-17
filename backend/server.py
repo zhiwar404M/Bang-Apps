@@ -408,6 +408,45 @@ def get_quran_verses_by_surah(surah_number: int):
                 "english": "The path of those You have blessed, not of those who have incurred Your wrath, nor of those who have gone astray"
             }
         ],
+        2: [  # Al-Baqarah (first few verses)
+            {
+                "verse_number": 1,
+                "arabic": "الم",
+                "kurdish": "ئەلیف لام میم",
+                "transliteration": "Alif Lam Meem",
+                "english": "Alif, Lam, Meem"
+            },
+            {
+                "verse_number": 2,
+                "arabic": "ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ",
+                "kurdish": "ئەم کتابە کە هیچ گومانی تێدا نییە، ڕێنمایی بۆ پارێزگارانە",
+                "transliteration": "Zalikal-kitabu la rayba feeh, hudan lil-muttaqeen",
+                "english": "This is the Book about which there is no doubt, a guidance for those conscious of Allah"
+            },
+            {
+                "verse_number": 3,
+                "arabic": "الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ",
+                "kurdish": "ئەوانەی باوەڕیان بە نادیار هەیە و نوێژ دەکەن و لەوەی ڕۆزیمان پێداون خەرج دەکەن",
+                "transliteration": "Allazeena yu'minoona bil-ghaybi wa yuqeemoonas-salaata wa mimma razaqnaahum yunfiqoon",
+                "english": "Who believe in the unseen, establish prayer, and spend out of what We have provided for them"
+            }
+        ],
+        3: [  # Aal-E-Imran (first few verses)
+            {
+                "verse_number": 1,
+                "arabic": "الم",
+                "kurdish": "ئەلیف لام میم",
+                "transliteration": "Alif Lam Meem",
+                "english": "Alif, Lam, Meem"
+            },
+            {
+                "verse_number": 2,
+                "arabic": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ",
+                "kurdish": "خوا، هیچ خودایەک نییە جگە لە ئەو، زیندووی هەمیشە زیندووە",
+                "transliteration": "Allahu la ilaha illa huwal-hayyul-qayyoom",
+                "english": "Allah - there is no deity except Him, the Ever-Living, the Sustainer of existence"
+            }
+        ],
         112: [  # Al-Ikhlas
             {
                 "verse_number": 1,
@@ -437,14 +476,47 @@ def get_quran_verses_by_surah(surah_number: int):
                 "transliteration": "Wa lam yakun lahu kufuwan ahad",
                 "english": "And there is none like unto Him"
             }
+        ],
+        113: [  # Al-Falaq
+            {
+                "verse_number": 1,
+                "arabic": "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ",
+                "kurdish": "بڵێ: پەنا دەبەمە بەر خوای بەرەبەیان",
+                "transliteration": "Qul a'oozu bi rabbil-falaq",
+                "english": "Say: I seek refuge in the Lord of daybreak"
+            },
+            {
+                "verse_number": 2,
+                "arabic": "مِن شَرِّ مَا خَلَقَ",
+                "kurdish": "لە خراپەی ئەوەی دروستی کردووە",
+                "transliteration": "Min sharri ma khalaq",
+                "english": "From the evil of that which He created"
+            }
+        ],
+        114: [  # An-Nas
+            {
+                "verse_number": 1,
+                "arabic": "قُلْ أَعُوذُ بِرَبِّ النَّاسِ",
+                "kurdish": "بڵێ: پەنا دەبەمە بەر خوای خەڵک",
+                "transliteration": "Qul a'oozu bi rabbin-nas",
+                "english": "Say: I seek refuge in the Lord of mankind"
+            },
+            {
+                "verse_number": 2,
+                "arabic": "مَلِكِ النَّاسِ",
+                "kurdish": "پاشای خەڵک",
+                "transliteration": "Malikin-nas",
+                "english": "The Sovereign of mankind"
+            }
         ]
     }
     
     return sample_verses.get(surah_number, [])
 
-def get_app_settings():
+def get_app_settings(user_id: str = "default"):
     """Get default app settings"""
     return {
+        "user_id": user_id,
         "theme": "default",
         "font_size": "medium",
         "arabic_font": "amiri",
@@ -452,7 +524,41 @@ def get_app_settings():
         "prayer_notifications": True,
         "auto_location": False,
         "quran_translation": True,
-        "verse_numbers": True
+        "verse_numbers": True,
+        "prayer_sound": True,
+        "24_hour_format": False,
+        "hijri_calendar": True,
+        "default_city": None,
+        "notification_times": {
+            "fajr": True,
+            "dhuhr": True,
+            "asr": True,
+            "maghrib": True,
+            "isha": True
+        }
+    }
+
+def update_app_settings(user_id: str, settings: dict):
+    """Update app settings for a user"""
+    # In a real app, this would save to database
+    # For now, we'll just return the updated settings
+    default_settings = get_app_settings(user_id)
+    default_settings.update(settings)
+    return default_settings
+
+def get_surah_info(surah_number: int):
+    """Get detailed information about a specific surah"""
+    surahs = get_quran_surahs()
+    surah = next((s for s in surahs if s["number"] == surah_number), None)
+    if not surah:
+        return None
+    
+    verses = get_quran_verses_by_surah(surah_number)
+    
+    return {
+        "surah_info": surah,
+        "verses": verses,
+        "total_verses": len(verses) if verses else surah["verses_count"]
     }
 
 # API Endpoints
@@ -498,6 +604,50 @@ async def get_quran():
     try:
         verses = get_quran_verses()
         return {"verses": verses}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/quran/surahs")
+async def get_surahs():
+    """Get list of all Quran surahs"""
+    try:
+        surahs = get_quran_surahs()
+        return {"surahs": surahs}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/quran/surah/{surah_number}")
+async def get_surah(surah_number: int):
+    """Get specific surah with verses"""
+    try:
+        if surah_number < 1 or surah_number > 114:
+            raise HTTPException(status_code=400, detail="Invalid surah number")
+        
+        surah_data = get_surah_info(surah_number)
+        if not surah_data:
+            raise HTTPException(status_code=404, detail="Surah not found")
+        
+        return surah_data
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/settings")
+async def get_settings(user_id: str = "default"):
+    """Get user settings"""
+    try:
+        settings = get_app_settings(user_id)
+        return settings
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/settings")
+async def update_settings(settings: dict, user_id: str = "default"):
+    """Update user settings"""
+    try:
+        updated_settings = update_app_settings(user_id, settings)
+        return updated_settings
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
