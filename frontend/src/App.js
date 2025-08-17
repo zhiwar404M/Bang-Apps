@@ -150,7 +150,8 @@ const App = () => {
     if (!selectedCity) {
       return (
         <div className="text-center py-8 text-gray-600">
-          {currentLang.selectCity}
+          <div className="mb-4 text-6xl">🕌</div>
+          <p className="text-lg">{currentLang.selectCity}</p>
         </div>
       );
     }
@@ -167,38 +168,147 @@ const App = () => {
     if (!prayerTimes) {
       return (
         <div className="text-center py-8 text-gray-600">
-          {currentLang.loading}
+          <div className="spinner mx-auto mb-4"></div>
+          <p>{currentLang.loading}</p>
         </div>
       );
     }
 
     const prayers = [
-      { name: currentLang.fajr, time: prayerTimes.fajr, icon: '🌅' },
-      { name: currentLang.sunrise, time: prayerTimes.sunrise, icon: '☀️' },
-      { name: currentLang.dhuhr, time: prayerTimes.dhuhr, icon: '🌞' },
-      { name: currentLang.asr, time: prayerTimes.asr, icon: '🌤️' },
-      { name: currentLang.maghrib, time: prayerTimes.maghrib, icon: '🌇' },
-      { name: currentLang.isha, time: prayerTimes.isha, icon: '🌙' }
+      { 
+        name: currentLang.fajr, 
+        time: prayerTimes.fajr, 
+        icon: '🌅',
+        color: 'from-indigo-500 to-purple-600',
+        borderColor: 'border-indigo-500',
+        bgColor: 'bg-indigo-50',
+        isCurrent: prayerTimes.current_prayer === 'fajr'
+      },
+      { 
+        name: currentLang.sunrise, 
+        time: prayerTimes.sunrise, 
+        icon: '☀️',
+        color: 'from-yellow-500 to-orange-500',
+        borderColor: 'border-yellow-500',
+        bgColor: 'bg-yellow-50',
+        isCurrent: prayerTimes.current_prayer === 'sunrise'
+      },
+      { 
+        name: currentLang.dhuhr, 
+        time: prayerTimes.dhuhr, 
+        icon: '🌞',
+        color: 'from-orange-500 to-red-500',
+        borderColor: 'border-orange-500',
+        bgColor: 'bg-orange-50',
+        isCurrent: prayerTimes.current_prayer === 'dhuhr'
+      },
+      { 
+        name: currentLang.asr, 
+        time: prayerTimes.asr, 
+        icon: '🌤️',
+        color: 'from-amber-500 to-yellow-600',
+        borderColor: 'border-amber-500',
+        bgColor: 'bg-amber-50',
+        isCurrent: prayerTimes.current_prayer === 'asr'
+      },
+      { 
+        name: currentLang.maghrib, 
+        time: prayerTimes.maghrib, 
+        icon: '🌇',
+        color: 'from-red-500 to-pink-600',
+        borderColor: 'border-red-500',
+        bgColor: 'bg-red-50',
+        isCurrent: prayerTimes.current_prayer === 'maghrib'
+      },
+      { 
+        name: currentLang.isha, 
+        time: prayerTimes.isha, 
+        icon: '🌙',
+        color: 'from-blue-600 to-indigo-700',
+        borderColor: 'border-blue-600',
+        bgColor: 'bg-blue-50',
+        isCurrent: prayerTimes.current_prayer === 'isha'
+      }
     ];
 
     return (
-      <div className="space-y-4">
-        <div className="text-center mb-6">
-          <h3 className="text-xl font-bold text-green-800 mb-2">{selectedCity.name}</h3>
-          <p className="text-gray-600">{new Date().toLocaleDateString()}</p>
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div className="text-center bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-2xl p-6 shadow-lg">
+          <div className="mb-3">
+            <h3 className="text-2xl font-bold mb-2">🕌 {selectedCity.name}</h3>
+            <p className="text-green-100 text-lg">{new Date().toLocaleDateString('ar-SA')}</p>
+          </div>
+          <div className="text-sm text-green-200">
+            {language === 'kurdish' ? 'کاتەکانی نوێژ بۆ ئەمڕۆ' : 'أوقات الصلاة اليوم'}
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        {/* Prayer Times Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {prayers.map((prayer, index) => (
-            <div key={index} className="prayer-card bg-white rounded-lg shadow-md p-4 border-r-4 border-green-500">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{prayer.icon}</span>
-                  <span className="font-semibold text-gray-800">{prayer.name}</span>
+            <div 
+              key={index} 
+              className={`
+                relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl
+                ${prayer.isCurrent ? 'ring-4 ring-green-400 scale-105 animate-pulse-soft' : ''}
+                ${prayer.bgColor} border-2 ${prayer.borderColor}
+              `}
+            >
+              {/* Background Gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${prayer.color} opacity-5`}></div>
+              
+              {/* Current Prayer Indicator */}
+              {prayer.isCurrent && (
+                <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 rounded-bl-2xl text-xs font-bold">
+                  {language === 'kurdish' ? 'ئێستا' : 'الآن'}
                 </div>
-                <span className="text-xl font-bold text-green-700">{prayer.time}</span>
+              )}
+              
+              {/* Prayer Content */}
+              <div className="relative p-6 text-center">
+                <div className="mb-4">
+                  <div className="text-5xl mb-2 filter drop-shadow-lg">{prayer.icon}</div>
+                  <h4 className="text-xl font-bold text-gray-800 mb-1">{prayer.name}</h4>
+                </div>
+                
+                <div className={`
+                  bg-white rounded-xl p-4 shadow-inner border-2 ${prayer.borderColor}
+                  ${prayer.isCurrent ? 'bg-green-50 border-green-400' : ''}
+                `}>
+                  <div className="text-3xl font-bold text-gray-900 mb-1 arabic-time">
+                    {prayer.time}
+                  </div>
+                  
+                  {prayer.isCurrent && (
+                    <div className="text-sm text-green-600 font-semibold mt-2">
+                      {language === 'kurdish' ? 'کاتی ئێستا' : 'الوقت الحالي'}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Next Prayer Info */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-200">
+          <div className="text-center">
+            <h4 className="text-lg font-semibold text-gray-800 mb-2">
+              {language === 'kurdish' ? 'نوێژی داهاتوو' : 'الصلاة القادمة'}
+            </h4>
+            <div className="flex items-center justify-center space-x-4">
+              <div className="text-2xl">⏰</div>
+              <div>
+                <p className="text-lg font-bold text-green-700">
+                  {prayers.find(p => p.isCurrent)?.name || prayers[0].name}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {language === 'kurdish' ? 'کات لەگەڵ ئێوەدایە' : 'حان وقت الصلاة'}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
