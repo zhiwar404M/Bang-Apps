@@ -285,5 +285,7 @@ test_plan:
 agent_communication:
     - agent: "main"
       message: "Built complete Kurdish Islamic app with all 4 requested features. Backend has prayer times calculation, language-based city selection, Qibla direction calculation, duas collection, and Quran verses. Frontend has beautiful responsive UI with Kurdish/Arabic language switching, city selection, and all 4 feature tabs. Ready for backend testing to verify all APIs are working correctly."
+    - agent: "main"
+      message: "Enhanced prayer times with accurate calculations and 12-hour format (AM/PM converted to ب.ن/د.ن). Improved UI design with colorful gradient cards, current prayer highlighting, and beautiful Islamic styling. Updated both backend calculation accuracy and frontend visual design."
     - agent: "testing"
       message: "✅ BACKEND TESTING COMPLETE: All 7 backend APIs tested and working perfectly! Created comprehensive backend_test.py with 10 test cases. All high-priority APIs (Prayer Times, Cities by Language, Qibla Direction) are fully functional. Language-based city filtering works correctly (Kurdish cities for Kurdish, Arabic cities for Arabic). Prayer times calculation returns all 6 times properly. Qibla direction calculation accurate. Duas and Quran APIs return proper Kurdish/Arabic content. Health check and error handling working. No critical issues found - all backend functionality ready for production."
