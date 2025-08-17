@@ -81,8 +81,11 @@ def test_enhanced_prayer_times_api(results):
                 time_part = time_str.replace(" ب.ن", "").replace(" د.ن", "")
                 try:
                     parsed_time = datetime.strptime(time_part, "%I:%M")
-                    hour = parsed_time.hour
-                    if hour < 1 or hour > 12:
+                    # In 12-hour format, valid hours are 1-12 (but strptime converts 12 to 0)
+                    # So we need to check the original string for valid format
+                    hour_str = time_part.split(":")[0]
+                    hour_int = int(hour_str)
+                    if hour_int < 1 or hour_int > 12:
                         results.log_fail(f"Enhanced Prayer Times API ({city_name})", f"Invalid 12-hour format for {prayer}: {time_str}")
                         continue
                 except ValueError:
