@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from './components/ui/select';
+import { Switch } from './components/ui/switch';
 
 const App = () => {
   const [language, setLanguage] = useState('kurdish');
@@ -93,6 +96,15 @@ const App = () => {
     fetchQuranSurahs();
     fetchSettings();
   }, [language]);
+
+  // Sync dark mode with settings
+  useEffect(() => {
+    if (settings?.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [settings?.theme]);
 
   const fetchCities = async () => {
     try {
@@ -208,6 +220,17 @@ const App = () => {
     const city = cities.find(c => c.id === cityId);
     setSelectedCity(city);
     
+    if (activeTab === 'prayer-times') {
+      fetchPrayerTimes(city);
+    } else if (activeTab === 'qibla') {
+      fetchQiblaDirection(city);
+    }
+  };
+
+  const handleCitySelect = (value) => {
+    const city = cities.find(c => String(c.id) === String(value));
+    setSelectedCity(city);
+    if (!city) return;
     if (activeTab === 'prayer-times') {
       fetchPrayerTimes(city);
     } else if (activeTab === 'qibla') {
@@ -710,41 +733,26 @@ const App = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-gray-700 font-medium">{currentLang.prayerNotifications}</label>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.prayer_notifications}
-                  onChange={(e) => handleSettingChange('prayer_notifications', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-              </label>
+              <Switch
+                checked={settings.prayer_notifications}
+                onCheckedChange={(checked) => handleSettingChange('prayer_notifications', checked)}
+              />
             </div>
 
             <div className="flex items-center justify-between">
               <label className="text-gray-700 font-medium">{currentLang.prayerSound}</label>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.prayer_sound}
-                  onChange={(e) => handleSettingChange('prayer_sound', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-              </label>
+              <Switch
+                checked={settings.prayer_sound}
+                onCheckedChange={(checked) => handleSettingChange('prayer_sound', checked)}
+              />
             </div>
 
             <div className="flex items-center justify-between">
               <label className="text-gray-700 font-medium">{currentLang.hijriCalendar}</label>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.hijri_calendar}
-                  onChange={(e) => handleSettingChange('hijri_calendar', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-              </label>
+              <Switch
+                checked={settings.hijri_calendar}
+                onCheckedChange={(checked) => handleSettingChange('hijri_calendar', checked)}
+              />
             </div>
           </div>
         </div>
@@ -774,69 +782,83 @@ const App = () => {
             
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 items-center">
               {/* Language Selector */}
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
-              >
-                <option value="kurdish">کوردی</option>
-                <option value="arabic">العربية</option>
-              </select>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-40 bg-white text-green-700">
+                  <SelectValue placeholder="Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="kurdish">کوردی</SelectItem>
+                  <SelectItem value="arabic">العربية</SelectItem>
+                </SelectContent>
+              </Select>
               
               {/* City Selector */}
-              <select
-                value={selectedCity?.id || ''}
-                onChange={handleCityChange}
-                className="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
-              >
-                <option value="">{currentLang.selectCity}</option>
-                {cities.map((city) => (
-                  <option key={city.id} value={city.id}>
-                    {city.name}
-                  </option>
-                ))}
-              </select>
+              <Select value={selectedCity ? String(selectedCity.id) : undefined} onValueChange={handleCitySelect}>
+                <SelectTrigger className="w-56 bg-white text-green-700">
+                  <SelectValue placeholder={currentLang.selectCity} />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((city) => (
+                    <SelectItem key={city.id} value={String(city.id)}>
+                      {city.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Navigation Tabs */}
-      <nav className="bg-white shadow-md sticky top-0 z-10">
-        <div className="container mx-auto px-4">
-          <div className="flex overflow-x-auto">
-            {[
-              { id: 'prayer-times', label: currentLang.prayerTimes, icon: '🕐' },
-              { id: 'qibla', label: currentLang.qibla, icon: '🧭' },
-              { id: 'duas', label: currentLang.duas, icon: '🤲' },
-              { id: 'quran', label: currentLang.quran, icon: '📖' },
-              { id: 'settings', label: currentLang.settings, icon: '⚙️' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                    : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
-                }`}
-              >
-                <span className="text-lg">{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            ))}
+      {/* Tabs and Main Content */}
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <nav className="bg-white shadow-md sticky top-0 z-10">
+          <div className="container mx-auto px-4">
+            <div className="flex overflow-x-auto py-2">
+              <TabsList className="bg-transparent p-0">
+                <TabsTrigger value="prayer-times" className={`px-6 py-3 ${activeTab === 'prayer-times' ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600 hover:bg-green-50'}`}>
+                  <span className="text-lg">🕐</span>
+                  <span className="ml-2">{currentLang.prayerTimes}</span>
+                </TabsTrigger>
+                <TabsTrigger value="qibla" className={`px-6 py-3 ${activeTab === 'qibla' ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600 hover:bg-green-50'}`}>
+                  <span className="text-lg">🧭</span>
+                  <span className="ml-2">{currentLang.qibla}</span>
+                </TabsTrigger>
+                <TabsTrigger value="duas" className={`px-6 py-3 ${activeTab === 'duas' ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600 hover:bg-green-50'}`}>
+                  <span className="text-lg">🤲</span>
+                  <span className="ml-2">{currentLang.duas}</span>
+                </TabsTrigger>
+                <TabsTrigger value="quran" className={`px-6 py-3 ${activeTab === 'quran' ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600 hover:bg-green-50'}`}>
+                  <span className="text-lg">📖</span>
+                  <span className="ml-2">{currentLang.quran}</span>
+                </TabsTrigger>
+                <TabsTrigger value="settings" className={`px-6 py-3 ${activeTab === 'settings' ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600 hover:bg-green-50'}`}>
+                  <span className="text-lg">⚙️</span>
+                  <span className="ml-2">{currentLang.settings}</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {activeTab === 'prayer-times' && renderPrayerTimes()}
-        {activeTab === 'qibla' && renderQibla()}
-        {activeTab === 'duas' && renderDuas()}
-        {activeTab === 'quran' && renderQuran()}
-        {activeTab === 'settings' && renderSettings()}
-      </main>
+        <main className="container mx-auto px-4 py-8">
+          <TabsContent value="prayer-times">
+            {renderPrayerTimes()}
+          </TabsContent>
+          <TabsContent value="qibla">
+            {renderQibla()}
+          </TabsContent>
+          <TabsContent value="duas">
+            {renderDuas()}
+          </TabsContent>
+          <TabsContent value="quran">
+            {renderQuran()}
+          </TabsContent>
+          <TabsContent value="settings">
+            {renderSettings()}
+          </TabsContent>
+        </main>
+      </Tabs>
 
       {/* Footer */}
       <footer className="bg-green-800 text-white text-center py-6 mt-12">
