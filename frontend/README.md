@@ -65,6 +65,16 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/a
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### `npm run build` fails to minify
+## Deploy
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### GitHub Pages (Preview)
+- Create repository secret `REACT_APP_BACKEND_URL` pointing to your backend (e.g. `https://islamic-backend.onrender.com`).
+- Push to `main` (or run the workflow “Deploy Frontend to GitHub Pages”).
+- Pages URL will appear in your repo Settings > Pages.
+
+### Backend on Render
+- Import this repo into Render using Blueprint; it reads `render.yaml`.
+- Or create a Web Service with:
+  - Build: `pip install -r backend/requirements.txt`
+  - Start: `python backend/server.py`
+  - Set env var `PORT=8001`.
