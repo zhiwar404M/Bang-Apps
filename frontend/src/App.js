@@ -157,15 +157,7 @@ const App = () => {
     }
   };
 
-  const fetchQuranVerses = async () => {
-    try {
-      const response = await fetch(`${backendUrl}/api/quran`);
-      const data = await response.json();
-      setQuranVerses(data.verses || []);
-    } catch (error) {
-      console.error('Error fetching quran verses:', error);
-    }
-  };
+  // Removed unused fetchQuranVerses which referenced an undefined state setter
 
   const fetchQuranSurahs = async () => {
     try {
@@ -240,6 +232,15 @@ const App = () => {
 
   const handleSurahChange = (event) => {
     const surahNumber = parseInt(event.target.value);
+    if (surahNumber) {
+      fetchSurah(surahNumber);
+    } else {
+      setSelectedSurah(null);
+    }
+  };
+
+  const handleSurahSelect = (value) => {
+    const surahNumber = parseInt(value);
     if (surahNumber) {
       fetchSurah(surahNumber);
     } else {
@@ -567,18 +568,18 @@ const App = () => {
           </div>
           
           <div className="max-w-md mx-auto">
-            <select
-              onChange={handleSurahChange}
-              className="w-full bg-white text-amber-700 px-4 py-3 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-amber-300 border-2 border-amber-300"
-            >
-              <option value="">{currentLang.selectSurah}</option>
-              {quranSurahs.map((surah) => (
-                <option key={surah.number} value={surah.number}>
-                  {surah.number}. {language === 'kurdish' ? surah.name_kurdish : surah.name_arabic}
-                  {' '}({surah.verses_count} {currentLang.verses})
-                </option>
-              ))}
-            </select>
+            <Select onValueChange={handleSurahSelect}>
+              <SelectTrigger className="w-full bg-white text-amber-700">
+                <SelectValue placeholder={currentLang.selectSurah} />
+              </SelectTrigger>
+              <SelectContent>
+                {quranSurahs.map((surah) => (
+                  <SelectItem key={surah.number} value={String(surah.number)}>
+                    {surah.number}. {language === 'kurdish' ? surah.name_kurdish : surah.name_arabic} ({surah.verses_count} {currentLang.verses})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
