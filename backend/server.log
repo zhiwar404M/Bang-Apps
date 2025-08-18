@@ -1,0 +1,29 @@
+INFO:     Started server process [6039]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:36000 - "HEAD / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:46736 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46738 - "GET /api/cities/kurdish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46748 - "GET /api/prayer-times/36.1911/44.0094 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46764 - "GET /api/quran HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46766 - "GET /api/quran/surahs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46776 - "GET /api/quran/surah/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46788 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46790 - "GET /api/cities/kurdish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46796 - "GET /api/prayer-times/36.1911/44.0094 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46810 - "GET /api/quran HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46822 - "GET /api/quran/surahs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46836 - "GET /api/quran/surah/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43064 - "GET /api/prayer-times/36.1911/44.0094 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43066 - "GET /api/prayer-times/33.3152/44.3661 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43068 - "GET /api/prayer-times/35.5558/45.4347 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43076 - "GET /api/prayer-times/36.8617/42.9991 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43084 - "GET /api/prayer-times/999/999 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43088 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43098 - "GET /api/cities/kurdish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43102 - "GET /api/cities/arabic HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43104 - "GET /api/qibla/36.1911/44.0094 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43110 - "GET /api/qibla/33.3152/44.3661 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43120 - "GET /api/duas HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43122 - "GET /api/quran HTTP/1.1" 200 OK

@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 """
-Backend API Tests for Kurdish Islamic App - Enhanced Prayer Times Focus
-Tests all backend endpoints with special focus on enhanced prayer time features
+تاقیکردنەوەی API ـی پشتەوە بۆ ئەپی ئیسلامی کوردی — دیزاینی تایبەتی کۆنسۆڵ
+- تاقیکردنەوەی هەموو ئەندپۆینتە سەرەکییەکان
+- سەرنج بەسەردا: کاتەکانی نوێژ بە فۆرماتی 12کاتژمێر و دیاریكردنی نوێژی ئێستا
+- پەیوەندی و ڕێکخستن بە زمان: کوردی (ددۆزراوە)
 """
 
-import requests
+import argparse
 import json
+import os
 import sys
+import time
 from datetime import datetime
+from typing import Optional
 
-# Get backend URL from environment
-BACKEND_URL = "https://page-builder-21.preview.emergentagent.com/api"
+import requests
+
+# URL ـی پشتەوە لە ژینگەی کارەکانی سیستەم بخوێنەوە، بە بنەڕەت: لوکال
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8001/api")
 
 # Test coordinates as specified in review request
 TEST_COORDINATES = [
@@ -20,49 +27,83 @@ TEST_COORDINATES = [
     ("Duhok (دهۆک)", {"lat": 36.8617, "lng": 42.9991})
 ]
 
+class Color:
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    GREEN = "\033[32m"
+    RED = "\033[31m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    CYAN = "\033[36m"
+
+
 class TestResults:
     def __init__(self):
         self.passed = 0
         self.failed = 0
         self.errors = []
+        self.use_color = True
         
     def log_pass(self, test_name):
-        print(f"✅ PASS: {test_name}")
+        msg = f"✅ سەركەوتوو: {test_name}"
+        print(f"{Color.GREEN}{msg}{Color.RESET}" if self.use_color else msg)
         self.passed += 1
         
     def log_fail(self, test_name, error):
-        print(f"❌ FAIL: {test_name} - {error}")
+        msg = f"❌ شکستی هێنا: {test_name} - {error}"
+        print(f"{Color.RED}{msg}{Color.RESET}" if self.use_color else msg)
         self.failed += 1
         self.errors.append(f"{test_name}: {error}")
         
     def summary(self):
         total = self.passed + self.failed
-        print(f"\n{'='*60}")
-        print(f"TEST SUMMARY: {self.passed}/{total} tests passed")
+        print("\n" + "=" * 60)
+        title = f"کورتەی تاقیکردنەوەکان: {self.passed}/{total} سەرکەوتوو"
+        print(f"{Color.BOLD}{title}{Color.RESET}" if self.use_color else title)
         if self.errors:
-            print(f"\nFAILED TESTS:")
+            print("\nئەم تاقیکردنەوانە شکستی هێنا:")
             for error in self.errors:
                 print(f"  - {error}")
-        print(f"{'='*60}")
+        print("=" * 60)
         return self.failed == 0
 
-def test_enhanced_prayer_times_api(results):
-    """Test enhanced prayer times with 12-hour format and current prayer detection"""
-    print(f"\n🕌 TESTING ENHANCED PRAYER TIMES API")
-    print("="*50)
+
+def hr(title: str, icon: str = ""):
+    bar = "─" * max(0, 48 - len(title))
+    line = f"{icon} {title} {bar}"
+    print(f"{Color.CYAN}{line}{Color.RESET}")
+
+
+def get(url: str, timeout: float, retries: int = 2, backoff: float = 0.5) -> Optional[requests.Response]:
+    last_exc: Optional[Exception] = None
+    for attempt in range(retries + 1):
+        try:
+            return requests.get(url, timeout=timeout)
+        except Exception as e:
+            last_exc = e
+            time.sleep(backoff * (2 ** attempt))
+    if last_exc:
+        raise last_exc
+    return None
+
+def test_enhanced_prayer_times_api(results, base_url: str, timeout: float):
+    """تاقیکردنەوەی کاتەکانی نوێژ بە فۆرماتی 12کاتژمێر و دیاریكردنی نوێژی ئێستا"""
+    hr("تاقیکردنەوەی کاتەکانی نوێژ", "🕌")
     
     for city_name, coords in TEST_COORDINATES:
         try:
-            url = f"{BACKEND_URL}/prayer-times/{coords['lat']}/{coords['lng']}"
-            response = requests.get(url, timeout=10)
+            url = f"{base_url}/prayer-times/{coords['lat']}/{coords['lng']}"
+            response = get(url, timeout=timeout)
             
             if response.status_code != 200:
                 results.log_fail(f"Enhanced Prayer Times API ({city_name})", f"Status code {response.status_code}")
                 continue
                 
             data = response.json()
-            print(f"\n📍 Testing {city_name} prayer times:")
-            print(f"   Response: {json.dumps(data, indent=2, ensure_ascii=False)}")
+            print(f"\n📍 تاقیکردن: {city_name}")
+            pretty = json.dumps(data, indent=2, ensure_ascii=False)
+            print(f"   وەڵام:\n{pretty}")
             
             # Check all required prayer times (6 times as specified)
             required_times = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]
@@ -92,27 +133,27 @@ def test_enhanced_prayer_times_api(results):
                     results.log_fail(f"Enhanced Prayer Times API ({city_name})", f"Invalid time format for {prayer}: {time_str}")
                     continue
                     
-            # Verify prayer times are reasonable
+            # سەلماندنی گونجاوی
             fajr_time = data.get("fajr", "")
             dhuhr_time = data.get("dhuhr", "")
             maghrib_time = data.get("maghrib", "")
             
-            # Fajr should be in early morning (AM)
+            # فەجڕ دەبێت ب.ن بێت
             if "د.ن" in fajr_time:
                 results.log_fail(f"Enhanced Prayer Times API ({city_name})", f"Fajr should be AM, got: {fajr_time}")
                 continue
                 
-            # Dhuhr should be around noon (PM)
+            # دهوور دەبێت د.ن بێت
             if "ب.ن" in dhuhr_time:
                 results.log_fail(f"Enhanced Prayer Times API ({city_name})", f"Dhuhr should be PM, got: {dhuhr_time}")
                 continue
                 
-            # Maghrib should be in evening (PM)
+            # مەغرب دەبێت د.ن بێت
             if "ب.ن" in maghrib_time:
                 results.log_fail(f"Enhanced Prayer Times API ({city_name})", f"Maghrib should be PM, got: {maghrib_time}")
                 continue
                 
-            # Check current_prayer field is included
+            # خانەی current_prayer هەبێت
             if "current_prayer" not in data:
                 results.log_fail(f"Enhanced Prayer Times API ({city_name})", "Missing current_prayer field")
                 continue
@@ -139,13 +180,13 @@ def test_enhanced_prayer_times_api(results):
         except Exception as e:
             results.log_fail(f"Enhanced Prayer Times API ({city_name})", f"Exception: {str(e)}")
 
-def test_prayer_times_error_handling(results):
-    """Test prayer times API error handling with invalid coordinates"""
+def test_prayer_times_error_handling(results, base_url: str, timeout: float):
+    """تاقیکردنەوەی هەڵەکانی API ـی کاتەکانی نوێژ بە هەڵەی چەقی ناوخۆ"""
     try:
-        print(f"\n🔍 Testing prayer times error handling...")
+        print(f"\n🔍 تاقیکردنەوەی هەڵەکانی نوێژ...")
         # Test with invalid coordinates
-        url = f"{BACKEND_URL}/prayer-times/999/999"
-        response = requests.get(url, timeout=10)
+        url = f"{base_url}/prayer-times/999/999"
+        response = get(url, timeout=timeout)
         
         # Should still return 200 but with fallback times
         if response.status_code != 200:
@@ -166,13 +207,13 @@ def test_prayer_times_error_handling(results):
     except Exception as e:
         results.log_fail("Prayer Times Error Handling", f"Exception: {str(e)}")
 
-def test_cities_api_regression(results):
-    """Test cities API for regressions"""
-    print(f"\n🏙️ Testing Cities API for regressions...")
+def test_cities_api_regression(results, base_url: str, timeout: float):
+    """تاقیکردنەوەی شارەکان بۆ ڕیگری لە دووبارە کێشە"""
+    print(f"\n🏙️ تاقیکردنەوەی API ـی شارەکان...")
     
     # Test Kurdish cities
     try:
-        response = requests.get(f"{BACKEND_URL}/cities/kurdish", timeout=10)
+        response = get(f"{base_url}/cities/kurdish", timeout=timeout)
         
         if response.status_code != 200:
             results.log_fail("Kurdish Cities API", f"Status code {response.status_code}")
@@ -194,7 +235,7 @@ def test_cities_api_regression(results):
     
     # Test Arabic cities
     try:
-        response = requests.get(f"{BACKEND_URL}/cities/arabic", timeout=10)
+        response = get(f"{base_url}/cities/arabic", timeout=timeout)
         
         if response.status_code != 200:
             results.log_fail("Arabic Cities API", f"Status code {response.status_code}")
@@ -214,9 +255,9 @@ def test_cities_api_regression(results):
     except Exception as e:
         results.log_fail("Arabic Cities API", f"Exception: {str(e)}")
 
-def test_qibla_direction_regression(results):
-    """Test Qibla direction API for regressions"""
-    print(f"\n🧭 Testing Qibla Direction API for regressions...")
+def test_qibla_direction_regression(results, base_url: str, timeout: float):
+    """تاقیکردنەوەی ئاراستەی قیبلە"""
+    print(f"\n🧭 تاقیکردنەوەی API ـی قیبلە...")
     
     test_cases = [
         ("Erbil", {"lat": 36.1911, "lng": 44.0094}),
@@ -225,8 +266,8 @@ def test_qibla_direction_regression(results):
     
     for city_name, coords in test_cases:
         try:
-            url = f"{BACKEND_URL}/qibla/{coords['lat']}/{coords['lng']}"
-            response = requests.get(url, timeout=10)
+            url = f"{base_url}/qibla/{coords['lat']}/{coords['lng']}"
+            response = get(url, timeout=timeout)
             
             if response.status_code != 200:
                 results.log_fail(f"Qibla Direction API ({city_name})", f"Status code {response.status_code}")
@@ -252,12 +293,12 @@ def test_qibla_direction_regression(results):
         except Exception as e:
             results.log_fail(f"Qibla Direction API ({city_name})", f"Exception: {str(e)}")
 
-def test_duas_collection_regression(results):
-    """Test duas collection API for regressions"""
-    print(f"\n📿 Testing Duas Collection API for regressions...")
+def test_duas_collection_regression(results, base_url: str, timeout: float):
+    """تاقیکردنەوەی کۆمەڵەی دوعاکان"""
+    print(f"\n📿 تاقیکردنەوەی کۆمەڵەی دوعاکان...")
     
     try:
-        response = requests.get(f"{BACKEND_URL}/duas", timeout=10)
+        response = get(f"{base_url}/duas", timeout=timeout)
         
         if response.status_code != 200:
             results.log_fail("Duas Collection API", f"Status code {response.status_code}")
@@ -289,12 +330,12 @@ def test_duas_collection_regression(results):
     except Exception as e:
         results.log_fail("Duas Collection API", f"Exception: {str(e)}")
 
-def test_quran_verses_regression(results):
-    """Test Quran verses API for regressions"""
-    print(f"\n📖 Testing Quran Verses API for regressions...")
+def test_quran_verses_regression(results, base_url: str, timeout: float):
+    """تاقیکردنەوەی ئەیتەکانی قورئان"""
+    print(f"\n📖 تاقیکردنەوەی ئەیتەکانی قورئان...")
     
     try:
-        response = requests.get(f"{BACKEND_URL}/quran", timeout=10)
+        response = get(f"{base_url}/quran", timeout=timeout)
         
         if response.status_code != 200:
             results.log_fail("Quran Verses API", f"Status code {response.status_code}")
@@ -324,12 +365,12 @@ def test_quran_verses_regression(results):
     except Exception as e:
         results.log_fail("Quran Verses API", f"Exception: {str(e)}")
 
-def test_health_check(results):
-    """Test health check endpoint"""
-    print(f"\n❤️ Testing Health Check API...")
+def test_health_check(results, base_url: str, timeout: float):
+    """تاقیکردنەوەی هێلثی سیستەم"""
+    print(f"\n❤️ تاقیکردنەوەی هێلث چێک...")
     
     try:
-        response = requests.get(f"{BACKEND_URL}/health", timeout=10)
+        response = get(f"{base_url}/health", timeout=timeout)
         
         if response.status_code != 200:
             results.log_fail("Health Check", f"Status code {response.status_code}")
@@ -351,39 +392,47 @@ def test_health_check(results):
         results.log_fail("Health Check", f"Exception: {str(e)}")
 
 def main():
-    """Run all backend tests with focus on enhanced prayer times"""
-    print("🚀 KURDISH ISLAMIC APP - ENHANCED PRAYER TIMES TESTING")
-    print(f"Testing backend at: {BACKEND_URL}")
-    print("="*60)
-    print("🎯 FOCUS: Enhanced Prayer Times with 12-hour format & current prayer detection")
-    print("📍 Testing coordinates: Erbil, Baghdad, Sulaymaniyah, Duhok")
-    print("="*60)
+    """ڕادەستی هەموو تاقیکردنەوەکان بکە بە دیزاینی کۆنسۆڵی تایبەت"""
+    parser = argparse.ArgumentParser(description="تاقیکردنەوەی APIی پشتەوە")
+    parser.add_argument("--url", default=BACKEND_URL, help="URL ـی پشتەوە (بنەڕەت: %(default)s)")
+    parser.add_argument("--timeout", type=float, default=10.0, help="کاتی چاوەڕوانی هەر داواكارییەکە (چرکە)")
+    parser.add_argument("--no-color", action="store_true", help="بێ ڕەنگ")
+    args = parser.parse_args()
+
+    base_url = args.url.rstrip("/")
+    print(f"{Color.BOLD}🚀 تاقیکردنەوەی ئەپی ئیسلامی کوردی — پشتەوە{Color.RESET}")
+    print(f"پشتەوە: {base_url}")
+    print("=" * 60)
+    print("🎯 سەرنج: کاتەکانی نوێژ بە 12کاتژمێر و نوێژی ئێستا")
+    print("📍 خالە تاقیکردنەکان: هەولێر، بەغدا، سلێمانی، دهۆک")
+    print("=" * 60)
     
     results = TestResults()
+    results.use_color = not args.no_color
     
     # Priority 1: Enhanced Prayer Times Testing
-    test_enhanced_prayer_times_api(results)
-    test_prayer_times_error_handling(results)
+    test_enhanced_prayer_times_api(results, base_url, args.timeout)
+    test_prayer_times_error_handling(results, base_url, args.timeout)
     
     # Priority 2: Regression Testing for other APIs
-    test_health_check(results)
-    test_cities_api_regression(results)
-    test_qibla_direction_regression(results)
-    test_duas_collection_regression(results)
-    test_quran_verses_regression(results)
+    test_health_check(results, base_url, args.timeout)
+    test_cities_api_regression(results, base_url, args.timeout)
+    test_qibla_direction_regression(results, base_url, args.timeout)
+    test_duas_collection_regression(results, base_url, args.timeout)
+    test_quran_verses_regression(results, base_url, args.timeout)
     
     # Print summary
     success = results.summary()
     
     if success:
-        print("\n🎉 All backend tests passed! Enhanced prayer times working correctly.")
-        print("✅ 12-hour format with Kurdish AM/PM indicators")
-        print("✅ Current prayer detection implemented")
-        print("✅ Solar calculations working for all test coordinates")
-        print("✅ No regressions in other APIs")
+        print("\n🎉 هەموو تاقیکردنەوەکان سەرکەوتوو بوون!")
+        print("✅ فۆرماتی 12کاتژمێر بە ڕوونکردنەوەی ب.ن/د.ن")
+        print("✅ دیاریكردنی نوێژی ئێستا کار دەکات")
+        print("✅ هەژماری خۆر و کات وشەییەکان بۆ هەموو شوێنەکان گونجاون")
+        print("✅ هیچ ڕیگرێکی دووبارە بوونی نەبوو")
         return 0
     else:
-        print(f"\n⚠️  {results.failed} test(s) failed. Check the errors above.")
+        print(f"\n⚠️ {results.failed} تاقیکردن شکستی هێنا. سەرەوە هەڵەکان بخوێنەوە.")
         return 1
 
 if __name__ == "__main__":

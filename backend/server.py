@@ -1,10 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from datetime import datetime, timedelta
 import math
-import os
-from typing import List, Dict
+from typing import Dict
 import uuid
 
 app = FastAPI()
